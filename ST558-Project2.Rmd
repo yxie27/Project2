@@ -1,0 +1,108 @@
+---
+title: "Project 2"
+author: "Yilin Xie"
+date: "July 3, 2020"
+output: 
+  rmarkdown::github_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The perpose of this project is going to analyze an online news popularity data set <https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity#> and predict **shares** by backward linear regression and random forest. Firstly I read it into R session and determine which variables that I would deal with.
+
+```{r}
+news <- read.csv("/Users/yilinxie/Desktop/ST558/Project/Project2/OnlineNewsPopularity.csv")
+head(news)
+sum(is.na(news$shares) )
+```
+
+As shown above, it is a huge data set with 39644 rows and 61 colomns. It contains factor variables, numeric variables and dummy variables. The task is to predict the 61st variable **shares**. Then I'm going to preprocess the data to get it in the form I need.
+
+### Data preprocessing
+
+```{r warning=FALSE,message=FALSE}
+library(tidyverse)
+## Filters out the data for the specified weekday
+news1 <- filter(news, weekday_is_monday == "1")
+## Remove the useless colomns
+news1 <- select(news1, -url, -weekday_is_monday, -weekday_is_tuesday, -weekday_is_wednesday, -weekday_is_thursday, -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, -is_weekend)
+r = nrow(news1);c = ncol(news1)
+r;c
+```
+
+Since n>>p, this is not a high dimension data set. I would use and to predict **shares** by the entire variables.
+
+### Data split
+
+```{r}
+set.seed(123)
+sub <- sample(1:r, 0.7*r)
+train <- news1[sub,]
+test <- news1[-sub,]
+```
+
+### Summarizations
+
+We can look at the distribution of **shares** through the histogram and see some statistics of the total variables in a summary table.
+
+```{r}
+nrow(train)
+hist(train$shares)
+hist(log(train$shares))
+t(summary(train))
+```
+
+## Ensemble model fit
+
+A random forest is a forest constructed in a random way, and the forest is composed of many unrelated decision trees. Therefore, in theory, the performance of random forest is generally better than that of a single decision tree, because the results of random forest are determined by voting on the results of multiple decision trees. But here, I'm using a random forest for regression.
+
+### On train set
+
+```{r}
+library(randomForest)
+rf <- randomForest(shares ~ ., data = train, importance=TRUE)
+rf
+importance(rf)
+varImpPlot(rf)
+```
+
+### On test set
+```{r}
+rf.test <- predict(rf, newdata = test[,-52])
+mean((test$shares-rf.test)^2)
+```
+
+## Linear regression fit
+
+I choose stepwise regression to fit this model, more specificly, the backward way. This data set contains too many variables. And since I'm not an expert on journalism, I can't tell which factors should have a real effect on the predicted variables. If I manually removed the variables by their significance in the model and compared the differences between the models, this would be a lot of work. So I want to use a backward regression model based on the AIC criteria to automatically determine which variables should be included or removed from the model.
+
+### On train set
+
+```{r}
+lm.step <- step(lm(shares ~ .,data = train))
+```
+```{r}
+summary(lm.step)
+```
+
+Calculate the predicted mean square error on the train set:
+
+```{r}
+train.pred <- predict(lm.step, train[,-52])
+mean((train.pred - train$shares)^2)
+```
+
+### On test set
+
+Calculate the predicted mean square error on the test set:
+
+```{r}
+test.pred <- predict(lm.step, test[,-52])
+mean((test.pred - test$shares)^2)
+```
