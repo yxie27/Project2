@@ -13,6 +13,7 @@ July 3, 2020
   - [Linear regression fit](#linear-regression-fit)
       - [On train set](#on-train-set-1)
       - [On test set](#on-test-set-1)
+  - [Conclusions](#conclusions)
 
 ## Introduction
 
@@ -488,6 +489,15 @@ varImpPlot(rf)
 ```
 
 ![](ST558-Project2_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+Calculate the predicted mean square error on the train set:
+
+``` r
+train.pred <- predict(rf, train[,-52])
+mean((train.pred - train$shares)^2)
+```
+
+    ## [1] 68724773
 
 ### On test set
 
@@ -2290,3 +2300,21 @@ mean((test.pred - test$shares)^2)
 ```
 
     ## [1] 85833271
+
+## Conclusions
+
+In this project, random forest and backward stepwise regression were
+used to predict the number of shares in social networks (popularity)
+about articles published by Mashable in a period of two years. Random
+forest is a kind of ensemble learning, which uses decision tree as weak
+classifier. Backward stepwise regression gradually removes the less
+significant variables on the basis that all variables are included in
+the regression model. As for data collected about Monday, shares of
+referenced articles in Mashable, average keyword and average shares of
+worst keyword are variables considered important to the results by both
+models. The random forest showed slight overfitting and backward
+stepwise regression showed severe underfitting. However, the two
+eventually performed similarly on the test set with random forest
+slightly superior to backward stepwise regression. But this is not the
+strictest way to compare the performance of the two models. Multiple
+data sets can be divided and predicted to calculate the mean MSE.
