@@ -14,11 +14,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-The perpose of this project is going to analyze an online news popularity data set <https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity#> and predict **shares** by backward linear regression and random forest. Firstly I read it into R session and determine which variables that I would deal with.
+The perpose of this project is going to analyze an online news popularity data set [here](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity) and predict **shares** by backward linear regression and random forest. Firstly I read it into R session and determine which variables that I would deal with.
 
 ```{r}
+#Load the data
 news <- read.csv("/Users/yilinxie/Desktop/ST558/Project/Project2/OnlineNewsPopularity.csv")
 head(news)
+#detect NA value
 sum(is.na(news$shares) )
 ```
 
@@ -28,21 +30,26 @@ As shown above, it is a huge data set with 39644 rows and 61 colomns. It contain
 
 ```{r warning=FALSE,message=FALSE}
 library(tidyverse)
-## Filters out the data for the specified weekday
+#Filters out the data for the specified weekday
 news1 <- filter(news, weekday_is_monday == "1")
-## Remove the useless colomns
+#Remove the useless colomns
 news1 <- select(news1, -url, -weekday_is_monday, -weekday_is_tuesday, -weekday_is_wednesday, -weekday_is_thursday, -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, -is_weekend)
-r = nrow(news1);c = ncol(news1)
-r;c
+r = nrow(news1)
+c = ncol(news1)
+r
+c
 ```
 
-Since n>>p, this is not a high dimension data set. I would use and to predict **shares** by the entire variables.
+Since r>>c, this is not a high dimension data set. I would use and to predict **shares** by the entire variables.
 
 ### Data split
 
 ```{r}
+#Set seed to make work reproducible
 set.seed(123)
+#randomly sample from the data
 sub <- sample(1:r, 0.7*r)
+#store training dataset (70% of the data) and test dataset (30% of the data)
 train <- news1[sub,]
 test <- news1[-sub,]
 ```
@@ -52,9 +59,12 @@ test <- news1[-sub,]
 We can look at the distribution of **shares** through the histogram and see some statistics of the total variables in a summary table.
 
 ```{r}
+#number of rows of training dataset
 nrow(train)
+#draw histograms
 hist(train$shares)
 hist(log(train$shares))
+#summary the training dataset
 t(summary(train))
 ```
 
@@ -64,11 +74,15 @@ A random forest is a forest constructed in a random way, and the forest is compo
 
 ### On train set
 
-```{r fig.height=5, fig.width=10}
+```{r fig.height=5, fig.width=10, message=FALSE}
+#load package
 library(randomForest)
+#Get random forest model fit on training dataset
 rf <- randomForest(shares ~ ., data = train, importance=TRUE)
 rf
+#variable importance measures
 importance(rf)
+#draw dotplot of variable importance as measured by Random Forest
 varImpPlot(rf)
 ```
 
@@ -80,11 +94,15 @@ train.pred <- predict(rf, train[,-52])
 mean((train.pred - train$shares)^2)
 ```
 
+So, the predicted mean square error on the training dataset is 68724773.  
+
 ### On test set
 ```{r}
 rf.test <- predict(rf, newdata = test[,-52])
 mean((test$shares-rf.test)^2)
 ```
+
+So, the predicted mean square error on the testing dataset is 80333539.  
 
 ## Linear regression fit
 
@@ -93,9 +111,11 @@ I choose stepwise regression to fit this model, more specificly, the backward wa
 ### On train set
 
 ```{r}
+#fit model
 lm.step <- step(lm(shares ~ .,data = train))
 ```
 ```{r}
+#summary the model
 summary(lm.step)
 ```
 
@@ -106,6 +126,8 @@ train.pred <- predict(lm.step, train[,-52])
 mean((train.pred - train$shares)^2)
 ```
 
+So, the predicted mean square error on the training dataset is 264157333.  
+
 ### On test set
 
 Calculate the predicted mean square error on the test set:
@@ -114,6 +136,8 @@ Calculate the predicted mean square error on the test set:
 test.pred <- predict(lm.step, test[,-52])
 mean((test.pred - test$shares)^2)
 ```
+
+So, the predicted mean square error on the testing dataset is 85833271.  
 
 ## Conclusions
 

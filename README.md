@@ -19,12 +19,13 @@ July 3, 2020
 
 The perpose of this project is going to analyze an online news
 popularity data set
-<https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity#> and
-predict **shares** by backward linear regression and random forest.
+[here](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity)
+and predict **shares** by backward linear regression and random forest.
 Firstly I read it into R session and determine which variables that I
 would deal with.
 
 ``` r
+#Load the data
 news <- read.csv("/Users/yilinxie/Desktop/ST558/Project/Project2/OnlineNewsPopularity.csv")
 head(news)
 ```
@@ -157,6 +158,7 @@ head(news)
     ## 6                    0.2142857    855
 
 ``` r
+#detect NA value
 sum(is.na(news$shares) )
 ```
 
@@ -171,26 +173,34 @@ preprocess the data to get it in the form I need.
 
 ``` r
 library(tidyverse)
-## Filters out the data for the specified weekday
+#Filters out the data for the specified weekday
 news1 <- filter(news, weekday_is_monday == "1")
-## Remove the useless colomns
+#Remove the useless colomns
 news1 <- select(news1, -url, -weekday_is_monday, -weekday_is_tuesday, -weekday_is_wednesday, -weekday_is_thursday, -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, -is_weekend)
-r = nrow(news1);c = ncol(news1)
-r;c
+r = nrow(news1)
+c = ncol(news1)
+r
 ```
 
     ## [1] 6661
 
+``` r
+c
+```
+
     ## [1] 52
 
-Since n\>\>p, this is not a high dimension data set. I would use and to
+Since r\>\>c, this is not a high dimension data set. I would use and to
 predict **shares** by the entire variables.
 
 ### Data split
 
 ``` r
+#Set seed to make work reproducible
 set.seed(123)
+#randomly sample from the data
 sub <- sample(1:r, 0.7*r)
+#store training dataset (70% of the data) and test dataset (30% of the data)
 train <- news1[sub,]
 test <- news1[-sub,]
 ```
@@ -201,12 +211,14 @@ We can look at the distribution of **shares** through the histogram and
 see some statistics of the total variables in a summary table.
 
 ``` r
+#number of rows of training dataset
 nrow(train)
 ```
 
     ## [1] 4662
 
 ``` r
+#draw histograms
 hist(train$shares)
 ```
 
@@ -219,6 +231,7 @@ hist(log(train$shares))
 ![](README_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ``` r
+#summary the training dataset
 t(summary(train))
 ```
 
@@ -394,25 +407,9 @@ random forest for regression.
 ### On train set
 
 ``` r
+#load package
 library(randomForest)
-```
-
-    ## randomForest 4.6-14
-
-    ## Type rfNews() to see new features/changes/bug fixes.
-
-    ## 
-    ## Attaching package: 'randomForest'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     combine
-
-    ## The following object is masked from 'package:ggplot2':
-    ## 
-    ##     margin
-
-``` r
+#Get random forest model fit on training dataset
 rf <- randomForest(shares ~ ., data = train, importance=TRUE)
 rf
 ```
@@ -428,6 +425,7 @@ rf
     ##                     % Var explained: -3.82
 
 ``` r
+#variable importance measures
 importance(rf)
 ```
 
@@ -485,6 +483,7 @@ importance(rf)
     ## abs_title_sentiment_polarity   1.826004774    6417534726
 
 ``` r
+#draw dotplot of variable importance as measured by Random Forest
 varImpPlot(rf)
 ```
 
@@ -499,6 +498,8 @@ mean((train.pred - train$shares)^2)
 
     ## [1] 68724773
 
+So, the predicted mean square error on the training dataset is 68724773.
+
 ### On test set
 
 ``` r
@@ -507,6 +508,8 @@ mean((test$shares-rf.test)^2)
 ```
 
     ## [1] 80333539
+
+So, the predicted mean square error on the testing dataset is 80333539.
 
 ## Linear regression fit
 
@@ -523,6 +526,7 @@ from the model.
 ### On train set
 
 ``` r
+#fit model
 lm.step <- step(lm(shares ~ .,data = train))
 ```
 
@@ -2241,6 +2245,7 @@ lm.step <- step(lm(shares ~ .,data = train))
     ## - self_reference_min_shares      1 2.3832e+10 1.2553e+12 90525
 
 ``` r
+#summary the model
 summary(lm.step)
 ```
 
@@ -2290,6 +2295,9 @@ mean((train.pred - train$shares)^2)
 
     ## [1] 264157333
 
+So, the predicted mean square error on the training dataset is
+264157333.
+
 ### On test set
 
 Calculate the predicted mean square error on the test set:
@@ -2300,6 +2308,8 @@ mean((test.pred - test$shares)^2)
 ```
 
     ## [1] 85833271
+
+So, the predicted mean square error on the testing dataset is 85833271.
 
 ## Conclusions
 
