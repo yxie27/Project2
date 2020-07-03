@@ -2,6 +2,12 @@
 title: "Project 2"
 author: "Yilin Xie"
 date: "July 3, 2020"
+params: 
+      weekday: 
+       label: "weekday:"
+       value: monday
+       input: select
+       choices: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
 output: 
   rmarkdown::github_document:
     toc: true
@@ -30,10 +36,11 @@ As shown above, it is a huge data set with 39644 rows and 61 colomns. It contain
 
 ```{r warning=FALSE,message=FALSE}
 library(tidyverse)
-#Filters out the data for the specified weekday
-news1 <- filter(news, weekday_is_monday == "1")
-#Remove the useless colomns
-news1 <- select(news1, -url, -weekday_is_monday, -weekday_is_tuesday, -weekday_is_wednesday, -weekday_is_thursday, -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, -is_weekend)
+## Filters out the data for the specified weekday
+news <- mutate(news, weekday = ifelse(weekday_is_monday == "1", "monday", ifelse(weekday_is_tuesday == "1", "tuesday", ifelse(weekday_is_wednesday == "1", "wednesday", ifelse(weekday_is_thursday == "1", "thursday", ifelse(weekday_is_friday, "friday", ifelse(weekday_is_saturday == "1", "saturday", "sunday")))))))
+news1 <- filter(news, weekday == params$weekday)
+## Remove the useless colomns
+news1 <- select(news1, -url, -weekday_is_monday, -weekday_is_tuesday, -weekday_is_wednesday, -weekday_is_thursday, -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, -is_weekend, -weekday)
 r = nrow(news1)
 c = ncol(news1)
 r
@@ -74,7 +81,7 @@ A random forest is a forest constructed in a random way, and the forest is compo
 
 ### On train set
 
-```{r fig.height=5, fig.width=10, message=FALSE}
+```{r fig.height=6, fig.width=10, message=FALSE}
 #load package
 library(randomForest)
 #Get random forest model fit on training dataset
@@ -142,4 +149,6 @@ So, the predicted mean square error on the testing dataset is 85833271.
 ## Conclusions
 
 In this project, random forest and backward stepwise regression were used to predict the number of shares in social networks (popularity) about articles published by Mashable in a period of two years. Random forest is a kind of ensemble learning, which uses decision tree as weak classifier. Backward stepwise regression gradually removes the less significant variables on the basis that all variables are included in the regression model. As for data collected about Monday, shares of referenced articles in Mashable, average keyword and average shares of worst keyword are variables considered important to the results by both models. The random forest showed slight overfitting and backward stepwise regression showed severe underfitting. However, the two eventually performed similarly on the test set with random forest slightly superior to backward stepwise regression. But this is not the strictest way to compare the performance of the two models. Multiple data sets can be divided and predicted to calculate the mean MSE.
+
+
 
