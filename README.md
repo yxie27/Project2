@@ -15,13 +15,13 @@ July 3, 2020
       - [On test set](#on-test-set-1)
   - [Conclusions](#conclusions)
 
-The analysis for [Monday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_monday.md)
-The analysis for [Tuesday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_tuesday.md)
-The analysis for [Wednesday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_wednesday.md)
-The analysis for [Thursday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_thursday.md)
-The analysis for [Friday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_friday.md)
-The analysis for [Saturday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_saturday.md)
-The analysis for [Sunday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_sunday.md)
+The analysis for [Monday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_monday.md). 
+The analysis for [Tuesday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_tuesday.md). 
+The analysis for [Wednesday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_wednesday.md). 
+The analysis for [Thursday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_thursday.md). 
+The analysis for [Friday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_friday.md). 
+The analysis for [Saturday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_saturday.md). 
+The analysis for [Sunday is available here](https://github.com/yxie27/Project2/blob/master/weekday_is_sunday.md). 
 
 ## Introduction
 
