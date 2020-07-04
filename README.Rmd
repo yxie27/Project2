@@ -3,11 +3,7 @@ title: "Project 2"
 author: "Yilin Xie"
 date: "July 3, 2020"
 params: 
-      weekday: 
-       label: "weekday:"
-       value: monday
-       input: select
-       choices: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+      weekday: weekday_is_monday
 output: 
   rmarkdown::github_document:
     toc: true
@@ -36,11 +32,12 @@ As shown above, it is a huge data set with 39644 rows and 61 colomns. It contain
 
 ```{r warning=FALSE,message=FALSE}
 library(tidyverse)
-## Filters out the data for the specified weekday
-news <- mutate(news, weekday = ifelse(weekday_is_monday == "1", "monday", ifelse(weekday_is_tuesday == "1", "tuesday", ifelse(weekday_is_wednesday == "1", "wednesday", ifelse(weekday_is_thursday == "1", "thursday", ifelse(weekday_is_friday, "friday", ifelse(weekday_is_saturday == "1", "saturday", "sunday")))))))
-news1 <- filter(news, weekday == params$weekday)
-## Remove the useless colomns
-news1 <- select(news1, -url, -weekday_is_monday, -weekday_is_tuesday, -weekday_is_wednesday, -weekday_is_thursday, -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, -is_weekend, -weekday)
+#Remove the useless colomns
+news1 <- select(news, -url, -timedelta, 
+                -weekday_is_monday, -weekday_is_tuesday,
+                -weekday_is_wednesday, -weekday_is_thursday, 
+                -weekday_is_friday, -weekday_is_saturday, -weekday_is_sunday, 
+                -is_weekend, params$weekday)
 r = nrow(news1)
 c = ncol(news1)
 r
@@ -97,19 +94,17 @@ varImpPlot(rf)
 Calculate the predicted mean square error on the train set:
 
 ```{r}
-train.pred <- predict(rf, train[,-52])
+train.pred <- predict(rf, train)
 mean((train.pred - train$shares)^2)
 ```
 
-So, the predicted mean square error on the training dataset is 68724773.  
 
 ### On test set
 ```{r}
-rf.test <- predict(rf, newdata = test[,-52])
+rf.test <- predict(rf, newdata = test)
 mean((test$shares-rf.test)^2)
 ```
 
-So, the predicted mean square error on the testing dataset is 80333539.  
 
 ## Linear regression fit
 
@@ -129,22 +124,20 @@ summary(lm.step)
 Calculate the predicted mean square error on the train set:
 
 ```{r}
-train.pred <- predict(lm.step, train[,-52])
+train.pred <- predict(lm.step, train)
 mean((train.pred - train$shares)^2)
 ```
 
-So, the predicted mean square error on the training dataset is 264157333.  
 
 ### On test set
 
 Calculate the predicted mean square error on the test set:
 
 ```{r}
-test.pred <- predict(lm.step, test[,-52])
+test.pred <- predict(lm.step, test)
 mean((test.pred - test$shares)^2)
 ```
 
-So, the predicted mean square error on the testing dataset is 85833271.  
 
 ## Conclusions
 
